@@ -151,7 +151,7 @@ public class SocketIOConfig {
 
 		// podemos notificar a los demas usuarios que ha salido. Ojo por que el broadcast envia a todos
 		private void notificateDisconnectToUsers(SocketIOClient client) {
-			
+
 			String message = "el usuario se ha desconectado salido";
 			String senderIdS = client.get(CLIENT_USER_ID_PARAM);
 			Integer senderId = Integer.valueOf(senderIdS);
@@ -206,22 +206,12 @@ public class SocketIOConfig {
 			System.out.printf("Mensaje enviado a la room" + message);
 			System.out.println(message.getMessage());
 			SocketIOClient receiverClient = findClientByUserId(data.getReceiverId());
-			
-			ChromeDriverManager.getInstance(DriverManagerType.CHROME).driverVersion("123.0.6312.22").setup();
-			//Configuration.startMaximized = true;
-	        open("https://translate.google.com/");
-	        String[] strings = {createdMessage.getText()};
-	        String translated = "";
-	        
-	        for (String actualString: strings) {
-	            $x("//textarea[@id='source']").clear();
-	            $x("//textarea[@id='source']").sendKeys(actualString);
-	            String translation = $x("//span[@class='tlid-translation translation']").getText();
-	            translated = translation;
-	        }
-			
+
+			String translatedMessage = translateMessage(createdMessage.getText());
+
+
 			if (receiverClient != null) {					
-				receiverClient.sendEvent(SocketEvents.ON_SEND_MESSAGE.value, translated);
+				receiverClient.sendEvent(SocketEvents.ON_SEND_MESSAGE.value, createdMessage);
 			}
 
 			// TODO esto es para mandar a todos los clientes. No para mandar a los de una Room
@@ -230,6 +220,10 @@ public class SocketIOConfig {
 			// esto puede que veamos mas adelante
 			// acknowledge.sendAckData("El mensaje se envio al destinatario satisfactoriamente");
 		};
+	}
+
+	private String translateMessage(String text) {
+		return null;
 	}
 
 	private boolean checkIfSendCanSendToRoom(SocketIOClient senderClient, String room) {
