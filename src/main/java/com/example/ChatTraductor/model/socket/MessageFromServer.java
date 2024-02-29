@@ -5,22 +5,33 @@ import com.example.ChatTraductor.enums.MessageType;
 public class MessageFromServer {
 	
 	private MessageType messageType;
-	private Integer room;
 	private String message;
-	private String authorName;
-	private Integer authorId;
+	private String senderName;
+	private Integer senderId;
+	private String receiverName;
+	private Integer receiverId;
 
 	public MessageFromServer() {
 		super();
 	}
-
-	public MessageFromServer(MessageType messageType,Integer room, String message, String authorName, Integer authorId) {
+	
+	public MessageFromServer(MessageType messageType, String message, String senderName, Integer senderId,
+			String receiverName, Integer receiverId) {
 		super();
 		this.messageType = messageType;
-		this.room = room;
 		this.message = message;
-		this.authorName = authorName;
-		this.authorId = authorId;
+		this.senderName = senderName;
+		this.senderId = senderId;
+		this.receiverName = receiverName;
+		this.receiverId = receiverId;
+	}
+
+	public MessageFromServer(MessageType messageType, String message, String senderName, Integer senderId) {
+		super();
+		this.messageType = messageType;
+		this.message = message;
+		this.senderName = senderName;
+		this.senderId = senderId;
 	}
 
 	public MessageType getMessageType() {
@@ -31,13 +42,6 @@ public class MessageFromServer {
 		this.messageType = messageType;
 	}
 
-	public Integer getRoom() {
-		return room;
-	}
-
-	public void setRoom(Integer room) {
-		this.room = room;
-	}
 
 	public String getMessage() {
 		return message;
@@ -47,20 +51,38 @@ public class MessageFromServer {
 		this.message = message;
 	}
 
-	public String getAuthorName() {
-		return authorName;
+	public String getSenderName() {
+		return senderName;
 	}
 
-	public void setAuthorName(String authorName) {
-		this.authorName = authorName;
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
 	}
 
-	public Integer getAuthorId() {
-		return authorId;
+	public Integer getSenderId() {
+		return senderId;
 	}
 
-	public void setAuthorId(Integer authorId) {
-		this.authorId = authorId;
+	public void setSenderId(Integer senderId) {
+		this.senderId = senderId;
 	}
+
+	public String getReceiverName() {
+		return receiverName;
+	}
+
+	public void setReceiverName(String receiverName) {
+		this.receiverName = receiverName;
+	}
+
+	public Integer getReceiverId() {
+		return receiverId;
+	}
+
+	public void setReceiverId(Integer receiverId) {
+		this.receiverId = receiverId;
+	}
+
+
 
 }

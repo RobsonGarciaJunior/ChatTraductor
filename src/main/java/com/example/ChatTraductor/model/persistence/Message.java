@@ -12,7 +12,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 @Entity
@@ -23,40 +22,45 @@ public class Message {
 	private Integer id;
 	@Column
 	private String text;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	//@JoinColumn(name = "chat_id", foreignKey = @ForeignKey(name = "Fk_chat_id" ))
-	@JoinColumns({
-        @JoinColumn(name = "userId1", referencedColumnName="user1_id"),
-        @JoinColumn(name = "userId2", referencedColumnName="user2_id")
-    })
-	@JsonManagedReference
-	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-	private Chat chat;
-
-	@Column(name = "chat_id", insertable = false, updatable = false)
-	private Integer chatId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "Fk_user_id" ))
+	@JoinColumn(name = "sender_id", foreignKey = @ForeignKey(name = "Fk_sender_id" ))
 	@JsonManagedReference
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-	private User user;
+	private User sender;
 
-	@Column(name = "user_id", insertable = false, updatable = false)
-	private Integer userId;
-	
+	@Column(name = "sender_id", insertable = false, updatable = false)
+	private Integer senderId;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "receiver_id", foreignKey = @ForeignKey(name = "Fk_receiver_id" ))
+	@JsonManagedReference
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+	private User receiver;
+
+	@Column(name = "sender_id", insertable = false, updatable = false)
+	private Integer receiverId;
+
 	public Message () {}
 
-	public Message(Integer id, String text, Chat chat, Integer chatId, User user, Integer userId) {
+	public Message(Integer id, String text, User sender, Integer senderId, User receiver, Integer receiverId) {
 		super();
 		this.id = id;
 		this.text = text;
-		this.chat = chat;
-		this.chatId = chatId;
-		this.user = user;
-		this.userId = userId;
+		this.sender = sender;
+		this.senderId = senderId;
+		this.receiver = receiver;
+		this.receiverId = receiverId;
 	}
+	
+	public Message(Integer id, String text, Integer senderId, Integer receiverId) {
+		super();
+		this.id = id;
+		this.text = text;
+		this.senderId = senderId;
+		this.receiverId = receiverId;
+	}
+
 
 	public Integer getId() {
 		return id;
@@ -66,55 +70,45 @@ public class Message {
 		this.id = id;
 	}
 
-
 	public String getText() {
 		return text;
 	}
-
 
 	public void setText(String text) {
 		this.text = text;
 	}
 
-
-	public Chat getChat() {
-		return chat;
+	public User getSender() {
+		return sender;
 	}
 
-
-	public void setChat(Chat chat) {
-		this.chat = chat;
+	public void setSender(User sender) {
+		this.sender = sender;
 	}
 
-
-	public Integer getChatId() {
-		return chatId;
+	public Integer getSenderId() {
+		return senderId;
 	}
 
-
-	public void setChatId(Integer chatId) {
-		this.chatId = chatId;
+	public void setSenderId(Integer senderId) {
+		this.senderId = senderId;
 	}
 
-
-	public User getUser() {
-		return user;
+	public User getReceiver() {
+		return receiver;
 	}
 
-
-	public void setUser(User user) {
-		this.user = user;
+	public void setReceiver(User receiver) {
+		this.receiver = receiver;
 	}
 
-
-	public Integer getUserId() {
-		return userId;
+	public Integer getReceiverId() {
+		return receiverId;
 	}
 
-
-	public void setUserId(Integer userId) {
-		this.userId = userId;
+	public void setReceiverId(Integer receiverId) {
+		this.receiverId = receiverId;
 	}
-
 	
+
 }

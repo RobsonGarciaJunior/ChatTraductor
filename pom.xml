@@ -86,6 +86,27 @@
 		    <artifactId>libphonenumber</artifactId>
 		    <version>8.12.10</version>
 		</dependency>
+		
+		<dependency>
+	        <groupId>org.apache.httpcomponents</groupId>
+	        <artifactId>httpclient</artifactId>
+	        <version>4.3.4</version>
+	    </dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.codeborne/selenide -->
+		<dependency>
+		    <groupId>com.codeborne</groupId>
+		    <artifactId>selenide</artifactId>
+		    <version>7.2.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+		<dependency>
+		    <groupId>io.github.bonigarcia</groupId>
+		    <artifactId>webdrivermanager</artifactId>
+		    <version>5.7.0</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>

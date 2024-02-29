@@ -3,30 +3,27 @@ package com.example.ChatTraductor.model.service;
 public class MessageDTO {
 	private Integer id;
 	private String text;
-	private ChatDTO chat;
-	private Integer chatId;
-	private UserDTO user;
-	private Integer userId;
+	private UserDTO sender;
+	private Integer senderId;
+	private UserDTO receiver;
+	private Integer receiverId;
 
-	public MessageDTO(Integer id, String text, ChatDTO chat, UserDTO user) {
+	public MessageDTO(Integer id, String text, UserDTO sender, Integer senderId, UserDTO receiver, Integer receiverId) {
 		super();
 		this.id = id;
 		this.text = text;
-		this.chat = chat;
-		this.user = user;
+		this.sender = sender;
+		this.senderId = senderId;
+		this.receiver = receiver;
+		this.receiverId = receiverId;
 	}
-	public MessageDTO(Integer id, String text, Integer chatId,  Integer userId) {
+	
+	public MessageDTO(Integer id, String text, Integer senderId, Integer receiverId) {
 		super();
 		this.id = id;
 		this.text = text;
-		this.chatId = chatId;
-		this.userId = userId;
-	}
-
-	public MessageDTO(Integer id, String text) {
-		super();
-		this.id = id;
-		this.text = text;
+		this.senderId = senderId;
+		this.receiverId = receiverId;
 	}
 
 	public Integer getId() {
@@ -45,33 +42,36 @@ public class MessageDTO {
 		this.text = text;
 	}
 
-	public ChatDTO getChat() {
-		return chat;
+	public UserDTO getSender() {
+		return sender;
 	}
 
-	public void setChat(ChatDTO chat) {
-		this.chat = chat;
+	public void setSender(UserDTO sender) {
+		this.sender = sender;
 	}
 
-	public Integer getChatId() {
-		return chatId;
+	public Integer getSenderId() {
+		return senderId;
 	}
-	public void setChatId(Integer chatId) {
-		this.chatId = chatId;
+
+	public void setSenderId(Integer senderId) {
+		this.senderId = senderId;
+	}
+
+	public UserDTO getReceiver() {
+		return receiver;
+	}
+
+	public void setReceiver(UserDTO receiver) {
+		this.receiver = receiver;
+	}
+
+	public Integer getReceiverId() {
+		return receiverId;
+	}
+
+	public void setReceiverId(Integer receiverId) {
+		this.receiverId = receiverId;
 	}
 	
-	public UserDTO getUser() {
-		return user;
-	}
-
-	public void setUser(UserDTO user) {
-		this.user = user;
-	}
-	
-	public Integer getUserId() {
-		return userId;
-	}
-	public void setUserId(Integer userId) {
-		this.userId = userId;
-	}
 }

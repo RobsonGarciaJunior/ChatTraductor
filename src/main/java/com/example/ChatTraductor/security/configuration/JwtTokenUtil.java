@@ -73,20 +73,6 @@ public class JwtTokenUtil {
 	public int getUserId(String token) {
 		return (int) parseClaims(token).get("userId");
 	}
-	//	
-	//	public List<Role> getUserRoles(String token) {
-	//		Claims claims = parseClaims(token);
-	//		Object jsonObject = claims.get("roles");
-	//		
-	//		List<Role> roles;
-	//		try {
-	//			roles = jsonArrayToList(jsonObject, Role.class);
-	//			return roles;
-	//		} catch (IOException e) {
-	//			e.printStackTrace();
-	//			return new ArrayList<Role>();
-	//		}
-	//	}
 
 	public static <T> List<T> jsonArrayToList(Object json, Class<T> elementClass) throws IOException {
 		ObjectMapper objectMapper = new ObjectMapper();

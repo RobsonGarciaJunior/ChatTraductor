@@ -9,8 +9,8 @@ public class UserDTO {
 	private String surname;
 	private String email;
 	private Long phoneNumber1;
-	private List<ChatDTO> chats;
-	private List<MessageDTO> messages;
+	private List<MessageDTO> sentMessages;
+	private List<MessageDTO> receivedMessages;
 
 	public UserDTO(Integer id, String name, String surname, String email, Long phoneNumber1) {
 		super();
@@ -51,21 +51,16 @@ public class UserDTO {
 	public void setPhoneNumber1(Long phoneNumber1) {
 		this.phoneNumber1 = phoneNumber1;
 	}
-
-	public List<ChatDTO> getChats() {
-		return chats;
+	public List<MessageDTO> getSentMessages() {
+		return sentMessages;
 	}
-
-	public void setChats(List<ChatDTO> chats) {
-		this.chats = chats;
+	public void setSentMessages(List<MessageDTO> sentMessages) {
+		this.sentMessages = sentMessages;
 	}
-
-	public List<MessageDTO> getMessages() {
-		return messages;
+	public List<MessageDTO> getReceivedMessages() {
+		return receivedMessages;
 	}
-	public void setMessages(List<MessageDTO> messages) {
-		this.messages = messages;
+	public void setReceivedMessages(List<MessageDTO> receivedMessages) {
+		this.receivedMessages = receivedMessages;
 	}
-
-
 }

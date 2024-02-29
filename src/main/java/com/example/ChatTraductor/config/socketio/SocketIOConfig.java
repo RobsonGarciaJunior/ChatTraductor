@@ -1,5 +1,8 @@
 package com.example.ChatTraductor.config.socketio;
 
+import static com.codeborne.selenide.Selenide.$x;
+import static com.codeborne.selenide.Selenide.open;
+
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,18 +16,16 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.example.ChatTraductor.enums.MessageType;
-import com.example.ChatTraductor.model.service.ChatDTO;
 import com.example.ChatTraductor.model.service.MessageDTO;
 import com.example.ChatTraductor.model.service.UserDTO;
-import com.example.ChatTraductor.model.socket.ChatFromClient;
-import com.example.ChatTraductor.model.socket.ChatFromServer;
 import com.example.ChatTraductor.model.socket.MessageFromClient;
 import com.example.ChatTraductor.model.socket.MessageFromServer;
 import com.example.ChatTraductor.security.configuration.JwtTokenUtil;
 import com.example.ChatTraductor.security.service.IUserService;
-import com.example.ChatTraductor.service.IChatService;
 import com.example.ChatTraductor.service.IMessageService;
 
+import io.github.bonigarcia.wdm.config.DriverManagerType;
+import io.github.bonigarcia.wdm.managers.ChromeDriverManager;
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
 
@@ -36,9 +37,6 @@ public class SocketIOConfig {
 
 	@Autowired
 	IUserService userService;
-
-	@Autowired
-	IChatService chatService;
 
 	@Autowired
 	IMessageService messageService;
@@ -53,9 +51,8 @@ public class SocketIOConfig {
 
 	private SocketIOServer server;
 
-	public final static String CLIENT_USER_NAME_PARAM = "authorname";
-	public final static String CLIENT_USER_ID_PARAM = "authorid";
-	public final static String CLIENT_USER_PHOTO_PARAM = "authorPhoto";
+	public final static String CLIENT_USER_NAME_PARAM = "sendername";
+	public final static String CLIENT_USER_ID_PARAM = "senderid";
 	public final static String AUTHORIZATION_HEADER = "Authorization";
 
 	@Bean
@@ -74,9 +71,7 @@ public class SocketIOConfig {
 		server.addConnectListener(new MyConnectListener(server));
 		server.addDisconnectListener(new MyDisconnectListener());
 		server.addEventListener(SocketEvents.ON_MESSAGE_RECEIVED.value, MessageFromClient.class, onSendMessage());
-		server.addEventListener(SocketEvents.ON_CHAT_RECEIVED.value, ChatFromClient.class, onChatSend());
 		server.start();
-
 		return server;
 	}
 
@@ -111,36 +106,32 @@ public class SocketIOConfig {
 
 			HttpHeaders headers = client.getHandshakeData().getHttpHeaders();
 
-			String authorization = headers.get(AUTHORIZATION_HEADER);
-			String token = authorization.split(" ")[1].trim();
+			String senderization = headers.get(AUTHORIZATION_HEADER);
+			String token = senderization.split(" ")[1].trim();
 
-			boolean hasAuthorizationHeader = headers.get(AUTHORIZATION_HEADER) != null;
+			boolean hassenderizationHeader = headers.get(AUTHORIZATION_HEADER) != null;
 
 			boolean isTokenValid = jwtUtil.validateAccessToken(token);
 
-			return hasAuthorizationHeader && isTokenValid;
+			return hassenderizationHeader && isTokenValid;
 		}
 
 		private void loadClientData(HttpHeaders headers, SocketIOClient client) {
 
 			try {
-				String authorization = headers.get(AUTHORIZATION_HEADER);
-				String token = authorization.split(" ")[1].trim();
+				String senderization = headers.get(AUTHORIZATION_HEADER);
+				String token = senderization.split(" ")[1].trim();
 
 				Integer userId = jwtUtil.getUserId(token);
 
 				UserDTO userDTO = userService.findById(userId);
-				String authorId = userDTO.getId().toString();
-				String authorName = userDTO.getName();
+				String senderId = userDTO.getId().toString();
+				String senderName = userDTO.getName();
 
-				client.set(CLIENT_USER_ID_PARAM, authorId);
-				client.set(CLIENT_USER_NAME_PARAM, authorName);
+				client.set(CLIENT_USER_ID_PARAM, senderId);
+				client.set(CLIENT_USER_NAME_PARAM, senderName);
 
-				System.out.println(userDTO.getChats().size());
-				for(ChatDTO chat: userDTO.getChats()) {			
-					client.joinRoom(chat.getId().toString());
-					System.out.println("Usuario " + authorName + " conectado a " + chat.getName() + " id: " + chat.getId());							
-				}			
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -160,18 +151,17 @@ public class SocketIOConfig {
 
 		// podemos notificar a los demas usuarios que ha salido. Ojo por que el broadcast envia a todos
 		private void notificateDisconnectToUsers(SocketIOClient client) {
-			Integer room = null;
+			
 			String message = "el usuario se ha desconectado salido";
-			String authorIdS = client.get(CLIENT_USER_ID_PARAM);
-			Integer authorId = Integer.valueOf(authorIdS);
-			String authorName = client.get(CLIENT_USER_NAME_PARAM);
+			String senderIdS = client.get(CLIENT_USER_ID_PARAM);
+			Integer senderId = Integer.valueOf(senderIdS);
+			String senderName = client.get(CLIENT_USER_NAME_PARAM);
 
 			MessageFromServer messageFromServer = new MessageFromServer(
 					MessageType.SERVER, 
-					room, 
 					message, 
-					authorName, 
-					authorId
+					senderName, 
+					senderId
 					);
 			client.getNamespace().getBroadcastOperations().sendEvent(SocketEvents.ON_SEND_MESSAGE.value, messageFromServer);
 		}
@@ -180,78 +170,65 @@ public class SocketIOConfig {
 	private DataListener<MessageFromClient> onSendMessage() {
 		return (senderClient, data, acknowledge) -> {
 
-			String authorIdS = senderClient.get(CLIENT_USER_ID_PARAM);
-			Integer authorId = Integer.valueOf(authorIdS);
-			String authorName = senderClient.get(CLIENT_USER_NAME_PARAM);
+			String senderIdS = senderClient.get(CLIENT_USER_ID_PARAM);
+			Integer senderId = Integer.valueOf(senderIdS);
+			String senderName = senderClient.get(CLIENT_USER_NAME_PARAM);
 
-			System.out.printf("Mensaje recibido de (%d) %s. El mensaje es el siguiente: %s \n", authorId, authorName, data.toString());
+			System.out.printf("Mensaje recibido de (%d) %s. El mensaje es el siguiente: %s \n", senderId, senderName, data.toString());
 
-			// TODO comprobar si el usuario esta en la room a la que quiere enviar...
-			boolean isAllowedToSendToRoom = checkIfSendCanSendToRoom(senderClient, data.getRoom().toString());
-			if (isAllowedToSendToRoom) {
-
-				if (data.getMessage() == null || data.getMessage().trim().isEmpty()) {
-					MessageFromServer errorMessage  = new MessageFromServer(
-							MessageType.SERVER, 
-							data.getRoom(), 
-							"No puedes enviar un mensaje vacio", 
-							"Server", 
-							0
-							);
-
-					System.out.printf("Mensaje reenviado al usuario" + errorMessage);
-					senderClient.sendEvent(SocketEvents.ON_MESSAGE_NOT_SENT.value, errorMessage);
-					return;
-				}
-
-				MessageFromServer message = new MessageFromServer(
-						MessageType.CLIENT,
-						data.getRoom(), 
-						data.getMessage(), 
-						authorName, 
-						authorId
-						);
-
-				ChatDTO chatDTO = chatService.findById(data.getRoom());
-
-				MessageDTO createdMessage;
-
-				MessageDTO messageDTO = new MessageDTO(null, data.getMessage(), chatDTO.getId(), authorId);
-
-				//				if (messageDTO.isTextTypeText(messageDTO)) {
-				//					createdMessage = messageService.createMessage(messageDTO);
-				//				} else {
-				//					createdMessage = messageService.createBase64FileOnResourceFile(messageDTO);
-				//				}
-				createdMessage = messageService.createMessage(messageDTO);
-
-				// enviamos a la room correspondiente:
-				System.out.printf("Mensaje enviado a la room" + message);
-				System.out.println(message.getMessage());
-				server.getRoomOperations(data.getRoom().toString()).sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
-
-				// TODO esto es para mandar a todos los clientes. No para mandar a los de una Room
-				// senderClient.getNamespace().getBroadcastOperations().sendEvent("chat message", message);
-
-				// esto puede que veamos mas adelante
-				// acknowledge.sendAckData("El mensaje se envio al destinatario satisfactoriamente");
-			} else {
-				// TODO
-				// como minimo no dejar. se podria devolver un mensaje como MessageType.SERVER de que no puede enviar...
-				// incluso ampliar la clase messageServer con otro enum de errores
-				// o crear un evento nuevo, no "chat message" con otros datos
-				//¿?¿?¿?¿?
-
+			if (data.getMessage() == null || data.getMessage().trim().isEmpty()) {
 				MessageFromServer errorMessage  = new MessageFromServer(
 						MessageType.SERVER, 
-						data.getRoom(), 
-						"No puedes enviar a este grupo", 
+						"No puedes enviar un mensaje vacio", 
 						"Server", 
 						0
 						);
+
 				System.out.printf("Mensaje reenviado al usuario" + errorMessage);
 				senderClient.sendEvent(SocketEvents.ON_MESSAGE_NOT_SENT.value, errorMessage);
+				return;
 			}
+
+			MessageFromServer message = new MessageFromServer(
+					MessageType.CLIENT,
+					data.getMessage(), 
+					senderName, 
+					senderId
+					);
+
+			MessageDTO createdMessage;
+
+			MessageDTO messageDTO = new MessageDTO(null, data.getMessage(), senderId, data.getReceiverId());
+
+			createdMessage = messageService.createMessage(messageDTO);
+
+			// enviamos a la room correspondiente:
+			System.out.printf("Mensaje enviado a la room" + message);
+			System.out.println(message.getMessage());
+			SocketIOClient receiverClient = findClientByUserId(data.getReceiverId());
+			
+			ChromeDriverManager.getInstance(DriverManagerType.CHROME).driverVersion("123.0.6312.22").setup();
+			//Configuration.startMaximized = true;
+	        open("https://translate.google.com/");
+	        String[] strings = {createdMessage.getText()};
+	        String translated = "";
+	        
+	        for (String actualString: strings) {
+	            $x("//textarea[@id='source']").clear();
+	            $x("//textarea[@id='source']").sendKeys(actualString);
+	            String translation = $x("//span[@class='tlid-translation translation']").getText();
+	            translated = translation;
+	        }
+			
+			if (receiverClient != null) {					
+				receiverClient.sendEvent(SocketEvents.ON_SEND_MESSAGE.value, translated);
+			}
+
+			// TODO esto es para mandar a todos los clientes. No para mandar a los de una Room
+			// senderClient.getNamespace().getBroadcastOperations().sendEvent("chat message", message);
+
+			// esto puede que veamos mas adelante
+			// acknowledge.sendAckData("El mensaje se envio al destinatario satisfactoriamente");
 		};
 	}
 
@@ -264,29 +241,6 @@ public class SocketIOConfig {
 			return false;
 		}
 	}
-
-
-	private DataListener<ChatFromClient> onChatSend() {
-		return (senderClient, data, acknowledge) -> {
-			String authorIdS = senderClient.get(CLIENT_USER_ID_PARAM);
-			Integer authorId = Integer.valueOf(authorIdS);
-
-			ChatFromServer chatFromServer = new ChatFromServer(
-					data.getId(),
-					data.getName()
-					);
-
-			ChatDTO chatDTO = new ChatDTO(data.getId(), data.getName());
-
-			ChatDTO createdChat = chatService.createChat(chatDTO);
-			String room = createdChat.getId().toString();
-			System.out.println("ROOM CREADA: " + room);
-			senderClient.joinRoom(room);			
-			chatFromServer.setId(createdChat.getId());
-			senderClient.sendEvent(SocketEvents.ON_SEND_CHAT.value, chatFromServer);
-		};
-	}
-
 
 	@PreDestroy
 	public void stopSocketIOServer() {

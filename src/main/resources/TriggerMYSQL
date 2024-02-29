@@ -1,0 +1,9 @@
+Use chattraductor;
+DELIMITER //
+CREATE TRIGGER increment_field_trigger BEFORE INSERT ON chats
+FOR EACH ROW
+BEGIN
+    DECLARE nextValue INT;
+    SELECT IFNULL(MAX(id), 0) + 1 INTO nextValue FROM chats;
+    SET NEW.id = nextValue;
+END;//

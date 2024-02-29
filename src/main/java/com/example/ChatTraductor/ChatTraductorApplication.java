@@ -11,7 +11,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.example.ChatTraductor.repository.IChatRepository;
 import com.example.ChatTraductor.security.persistance.User;
 import com.example.ChatTraductor.security.repository.IUserRepository;
 import com.example.ChatTraductor.service.IMessageService;
@@ -24,10 +23,6 @@ public class ChatTraductorApplication {
 
 	@Autowired
 	IUserRepository userRepository;
-
-	@Autowired
-	IChatRepository chatRepository;
-
 
 	@Autowired
 	IMessageService messageService;

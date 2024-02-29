@@ -1,25 +1,25 @@
 package com.example.ChatTraductor.model.socket;
 
 public class MessageFromClient {
-	
-    private Integer room;
-    private String message;
+    
+	private String message;    
+    private Integer receiverId;
 
     public MessageFromClient() {
         super();
     }
-    public MessageFromClient(Integer room, String message) {
+    public MessageFromClient(String message, Integer receiverId) {
     	super();
         this.message = message;
-        this.room = room;
+        this.receiverId = receiverId;
     }
 
-	public Integer getRoom() {
-		return room;
+	public Integer getReceiverId() {
+		return receiverId;
 	}
 
-	public void setRoom(Integer room) {
-		this.room = room;
+	public void setRoom(Integer receiverId) {
+		this.receiverId = receiverId;
 	}
 	
 	public String getMessage() {
@@ -31,7 +31,7 @@ public class MessageFromClient {
 	}
 	@Override
 	public String toString() {
-		return "MessageFromClient [room=" + room + ", message=" + message + "]";
+		return "MessageFromClient [receiverId=" + receiverId + ", message=" + message + "]";
 	}
 
     

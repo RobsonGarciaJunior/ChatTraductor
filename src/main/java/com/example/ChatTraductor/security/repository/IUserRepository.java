@@ -12,7 +12,7 @@ import com.example.ChatTraductor.security.persistance.User;
 public interface IUserRepository extends CrudRepository<User, Integer>{
 	Optional<User> findByEmail(String email);
 	
-//	@Query("SELECT u FROM User u LEFT JOIN FETCH u.chats WHERE u.id = :id")
+//	@Query(value="SELECT * FROM users u JOIN chats c ON u.id = c.user1_id OR u.id = c.user2_id WHERE u.id = :id", nativeQuery = true)
 //    Optional<User> findUserWithChatsById(@Param("id") Integer idUser);
 	
 	//@Query("SELECT u FROM User u JOIN u.chats c WHERE c.id = :chatId")
@@ -26,5 +26,6 @@ public interface IUserRepository extends CrudRepository<User, Integer>{
 	
 	@Query("SELECT u FROM User u WHERE u.id > :givenId")
 	Iterable<User> findAllUsersCreatedAfterId(@Param("givenId") Integer givenId);
+
 	
 }

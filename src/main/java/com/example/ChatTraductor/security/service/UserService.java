@@ -9,10 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.example.ChatTraductor.model.persistence.Chat;
-import com.example.ChatTraductor.model.service.ChatDTO;
 import com.example.ChatTraductor.model.service.UserDTO;
-import com.example.ChatTraductor.repository.IChatRepository;
 import com.example.ChatTraductor.security.persistance.User;
 import com.example.ChatTraductor.security.repository.IUserRepository;
 
@@ -24,9 +21,6 @@ public class UserService implements IUserService, UserDetailsService {
 
 	@Autowired
 	IUserRepository userRepository;
-
-	@Autowired
-	IChatRepository chatRepository;
 
 
 	@Override
@@ -63,13 +57,12 @@ public class UserService implements IUserService, UserDetailsService {
 
 	@Override
 	public UserDTO findById(Integer id) {
-		return null;
+		
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new UsernameNotFoundException("User " + id + " not found"));
 
-//		User user = userRepository.findUserWithChatsById(id)
-//				.orElseThrow(() -> new UsernameNotFoundException("User " + id + " not found"));
-//
-//		UserDTO response = convertFromUserDAOToDTO(user);
-//		return response;
+		UserDTO response = convertFromUserDAOToDTO(user);
+		return response;
 
 	}
 
@@ -106,25 +99,8 @@ public class UserService implements IUserService, UserDetailsService {
 				user.getEmail(),
 				user.getPhoneNumber1()
 				);
-
-//		if (user.getChats() != null) {
-//			List<ChatDTO> chatList = new ArrayList<ChatDTO>();
-//			for(Chat chat: user.getChats()) {
-//				chatList.add(convertFromChatDAOToDTO(chat));
-//			}
-//			response.setChats(chatList);
-//		}
-
 		return response;
 	}
 
-	private ChatDTO convertFromChatDAOToDTO(Chat chat) {
-		ChatDTO response = new ChatDTO(
-				chat.getId(),
-				chat.getName()
-				);
-
-		return response;
-	}
 	/////
 }

@@ -38,20 +38,15 @@ public class User implements UserDetails {
 	@Column(name="phone_number1")
 	private Long phoneNumber1;
 
-//	@ManyToMany(cascade = {
-//			CascadeType.PERSIST,
-//			CascadeType.MERGE
-//	})
-//
-//	@JoinTable(name = "user_chat",
-//	joinColumns = @JoinColumn(name = "user_id"),
-//	inverseJoinColumns = @JoinColumn(name = "chat_id"))
-//	private List<Chat> chats;
-
-	@OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "sender", orphanRemoval = true, fetch = FetchType.LAZY)
 	@JsonBackReference
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-	private List<Message> messages;
+	private List<Message> sentMessages;
+	
+	@OneToMany(mappedBy = "receiver", orphanRemoval = true, fetch = FetchType.LAZY)
+	@JsonBackReference
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+	private List<Message> receivedMessages;
 
 	public User() {}
 
@@ -114,20 +109,21 @@ public class User implements UserDetails {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-//	public List<Chat> getChats() {
-//		return chats;
-//	}
-//
-//	public void setChats(List<Chat> chats) {
-//		this.chats = chats;
-//	}
 
-	public List<Message> getMessages() {
-		return messages;
+	public List<Message> getSentMessages() {
+		return sentMessages;
 	}
 
-	public void setMessages(List<Message> messages) {
-		this.messages = messages;
+	public void setSentMessages(List<Message> sentMessages) {
+		this.sentMessages = sentMessages;
+	}
+
+	public List<Message> getReceivedMessages() {
+		return receivedMessages;
+	}
+
+	public void setReceivedMessages(List<Message> receivedMessages) {
+		this.receivedMessages = receivedMessages;
 	}
 
 	@Override
