@@ -36,7 +36,7 @@ public class User implements UserDetails {
 	@Column
 	private String password;
 	@Column(name="phone_number1")
-	private Long phoneNumber1;
+	private String phoneNumber1;
 
 	@OneToMany(mappedBy = "sender", orphanRemoval = true, fetch = FetchType.LAZY)
 	@JsonBackReference
@@ -57,7 +57,7 @@ public class User implements UserDetails {
 		this.email = email;
 	}
 
-	public User(Integer id, String name, String surname, String email, Long phoneNumber1) {
+	public User(Integer id, String name, String surname, String email, String phoneNumber1) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -98,11 +98,11 @@ public class User implements UserDetails {
 		this.email = email;
 	}
 
-	public Long getPhoneNumber1() {
+	public String getPhoneNumber1() {
 		return phoneNumber1;
 	}
 
-	public void setPhoneNumber1(Long phoneNumber1) {
+	public void setPhoneNumber1(String phoneNumber1) {
 		this.phoneNumber1 = phoneNumber1;
 	}
 

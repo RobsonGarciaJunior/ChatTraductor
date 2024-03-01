@@ -8,11 +8,11 @@ public class UserDTO {
 	private String name;
 	private String surname;
 	private String email;
-	private Long phoneNumber1;
+	private String phoneNumber1;
 	private List<MessageDTO> sentMessages;
 	private List<MessageDTO> receivedMessages;
 
-	public UserDTO(Integer id, String name, String surname, String email, Long phoneNumber1) {
+	public UserDTO(Integer id, String name, String surname, String email, String phoneNumber1) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -45,10 +45,10 @@ public class UserDTO {
 		this.email = email;
 	}
 
-	public Long getPhoneNumber1() {
+	public String getPhoneNumber1() {
 		return phoneNumber1;
 	}
-	public void setPhoneNumber1(Long phoneNumber1) {
+	public void setPhoneNumber1(String phoneNumber1) {
 		this.phoneNumber1 = phoneNumber1;
 	}
 	public List<MessageDTO> getSentMessages() {

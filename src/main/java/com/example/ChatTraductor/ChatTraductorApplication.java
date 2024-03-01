@@ -39,7 +39,7 @@ public class ChatTraductorApplication {
 		if(users.size() == 0) {
 			for(int i = 0; i < 5 ; i++) {	
 				PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
-				String[] region = {"BR", "ES", "GB", "FR"};
+				String[] region = {"ES", "GB"};
 				Random random = new Random();
 				int index = random.nextInt(region.length);
 				seedUsersTable(phoneNumberUtil, region[index]);
@@ -55,13 +55,13 @@ public class ChatTraductorApplication {
 		Faker faker = new Faker(new Locale(lng + "-" + region));
 		
 		PhoneNumber exampleNumber = phoneNumberUtil.getExampleNumberForType(region, PhoneNumberUtil.PhoneNumberType.MOBILE);
-		Long phone = Long.valueOf(String.valueOf(exampleNumber.getCountryCode()) + String.valueOf(exampleNumber.getNationalNumber()));  
+		String phone = String.valueOf("+"+String.valueOf(exampleNumber.getCountryCode()) + String.valueOf(exampleNumber.getNationalNumber()));  
 		System.out.println( "CREATED: " + region + phone);
 
 		String firstName = faker.name().firstName();
 		String lastName = faker.name().lastName();
 
-		User user = new User();
+		User user = new User();	
 		user.setName(firstName);
 		user.setSurname(lastName);
 		user.setEmail(firstName+lastName+"@elorrieta.com");
@@ -73,17 +73,11 @@ public class ChatTraductorApplication {
 	private String getLanguage(String region) {
 		String response = new String();
 		switch (region) {
-		case "BR":
-			response = "pt";
-			break;
 		case "ES":
 			response = "es";
 			break;
 		case "GB":
 			response = "en";
-			break;
-		case "FR":
-			response = "fr";
 			break;
 		}
 		return response;

@@ -1,10 +1,12 @@
 package com.example.ChatTraductor.config.socketio;
 
-import static com.codeborne.selenide.Selenide.$x;
-import static com.codeborne.selenide.Selenide.open;
-
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Collection;
 
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,9 +25,10 @@ import com.example.ChatTraductor.model.socket.MessageFromServer;
 import com.example.ChatTraductor.security.configuration.JwtTokenUtil;
 import com.example.ChatTraductor.security.service.IUserService;
 import com.example.ChatTraductor.service.IMessageService;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 
-import io.github.bonigarcia.wdm.config.DriverManagerType;
-import io.github.bonigarcia.wdm.managers.ChromeDriverManager;
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
 
@@ -48,6 +51,8 @@ public class SocketIOConfig {
 	private Integer socketServerPort;
 	@Value("${server.port}")
 	private Integer webServerPort;
+	@Value("${localazy.token}")
+	private String apiToken;
 
 	private SocketIOServer server;
 
@@ -207,8 +212,8 @@ public class SocketIOConfig {
 			System.out.println(message.getMessage());
 			SocketIOClient receiverClient = findClientByUserId(data.getReceiverId());
 
-			String translatedMessage = translateMessage(createdMessage.getText());
-
+			String translatedMessage = translateMessage(createdMessage.getText(), senderId, data.getReceiverId());
+			createdMessage.setText(translatedMessage);
 
 			if (receiverClient != null) {					
 				receiverClient.sendEvent(SocketEvents.ON_SEND_MESSAGE.value, createdMessage);
@@ -222,8 +227,71 @@ public class SocketIOConfig {
 		};
 	}
 
-	private String translateMessage(String text) {
-		return null;
+	private String translateMessage(String text, Integer senderId, Integer receiverId) {
+		String response = "";
+		UserDTO receiver = userService.findById(receiverId);
+		UserDTO sender = userService.findById(senderId);
+
+		PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+
+		try {
+			Phonenumber.PhoneNumber senderProto = phoneNumberUtil.parse(sender.getPhoneNumber1().toString(), "");
+
+			Phonenumber.PhoneNumber receiverProto = phoneNumberUtil.parse(receiver.getPhoneNumber1().toString(), "");
+
+
+			
+			String targetLang = getLanguage(receiverProto.getCountryCode());
+			String sourceLang = getLanguage(senderProto.getCountryCode());
+
+			
+			System.out.println("SENDER Country code: " + senderProto.getCountryCode());
+			System.out.println("RECEIVER Country code: " + receiverProto.getCountryCode());
+			//This prints "Country code: 91"
+
+			String translatedText = translateText(text, sourceLang, targetLang);
+			System.out.println("Translated text: " + translatedText);
+			response = translatedText;
+			return response;
+		}catch (NumberParseException e) {
+			System.err.println("NumberParseException was thrown: " + e.toString());
+		} catch (IOException e) {
+			System.err.println("Error: " + e.getMessage());
+		}
+		return response;	
+	}
+
+	public static String translateText(String text, String sourceLang, String targetLang) throws IOException {
+		String encodedText = URLEncoder.encode(text, "UTF-8");
+		String encodedLangPair = URLEncoder.encode(sourceLang + "|" + targetLang, "UTF-8");
+		String url = "https://www.apertium.org/apy/translate?q=" + encodedText + "&langpair=" + encodedLangPair;
+
+		// Fetch the response as a JSON object
+		Document doc = Jsoup.connect(url).ignoreContentType(true).get();
+		JSONObject json = new JSONObject(doc.text());
+		String translatedText = json.getJSONObject("responseData").getString("translatedText");
+
+		System.out.println("Translated text: " + translatedText);
+		return translatedText;
+	}
+
+	private String getLanguage(Integer countryCode) {
+		String response = new String();
+		switch (countryCode) {
+		case 55:
+			response = "pt";
+			break;
+		case 34:
+			response = "es";
+			break;
+		case 44:
+			response = "en";
+			break;
+		case 33:
+			response = "fr";
+			break;
+		}
+		return response;
 	}
 
 	private boolean checkIfSendCanSendToRoom(SocketIOClient senderClient, String room) {
