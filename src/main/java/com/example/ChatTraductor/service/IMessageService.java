@@ -8,9 +8,11 @@ public interface IMessageService {
 
 	List<MessageDTO> findAllMessagesByChatId(Integer chatId);
 
-	List<MessageDTO> findAll(Integer id, Integer userId);
+	List<MessageDTO> findAll(Integer userId);
 
 	MessageDTO createMessage(MessageDTO messageDTO);
+
+	String translateMessage(String text, Integer senderId, Integer receiverId);
 	
 	//MessageDTO updateMessage(MessageDTO messageDTO) throws MessageNotFoundException, IOException;
 }

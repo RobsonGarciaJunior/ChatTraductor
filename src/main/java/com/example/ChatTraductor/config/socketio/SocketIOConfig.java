@@ -211,8 +211,8 @@ public class SocketIOConfig {
 			System.out.printf("Mensaje enviado a la room" + message);
 			System.out.println(message.getMessage());
 			SocketIOClient receiverClient = findClientByUserId(data.getReceiverId());
-
-			String translatedMessage = translateMessage(createdMessage.getText(), senderId, data.getReceiverId());
+			
+			String translatedMessage = messageService.translateMessage(createdMessage.getText(), senderId, data.getReceiverId());
 			createdMessage.setText(translatedMessage);
 
 			if (receiverClient != null) {					
@@ -225,73 +225,6 @@ public class SocketIOConfig {
 			// esto puede que veamos mas adelante
 			// acknowledge.sendAckData("El mensaje se envio al destinatario satisfactoriamente");
 		};
-	}
-
-	private String translateMessage(String text, Integer senderId, Integer receiverId) {
-		String response = "";
-		UserDTO receiver = userService.findById(receiverId);
-		UserDTO sender = userService.findById(senderId);
-
-		PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
-
-		try {
-			Phonenumber.PhoneNumber senderProto = phoneNumberUtil.parse(sender.getPhoneNumber1().toString(), "");
-
-			Phonenumber.PhoneNumber receiverProto = phoneNumberUtil.parse(receiver.getPhoneNumber1().toString(), "");
-
-
-			
-			String targetLang = getLanguage(receiverProto.getCountryCode());
-			String sourceLang = getLanguage(senderProto.getCountryCode());
-
-			
-			System.out.println("SENDER Country code: " + senderProto.getCountryCode());
-			System.out.println("RECEIVER Country code: " + receiverProto.getCountryCode());
-			//This prints "Country code: 91"
-
-			String translatedText = translateText(text, sourceLang, targetLang);
-			System.out.println("Translated text: " + translatedText);
-			response = translatedText;
-			return response;
-		}catch (NumberParseException e) {
-			System.err.println("NumberParseException was thrown: " + e.toString());
-		} catch (IOException e) {
-			System.err.println("Error: " + e.getMessage());
-		}
-		return response;	
-	}
-
-	public static String translateText(String text, String sourceLang, String targetLang) throws IOException {
-		String encodedText = URLEncoder.encode(text, "UTF-8");
-		String encodedLangPair = URLEncoder.encode(sourceLang + "|" + targetLang, "UTF-8");
-		String url = "https://www.apertium.org/apy/translate?q=" + encodedText + "&langpair=" + encodedLangPair;
-
-		// Fetch the response as a JSON object
-		Document doc = Jsoup.connect(url).ignoreContentType(true).get();
-		JSONObject json = new JSONObject(doc.text());
-		String translatedText = json.getJSONObject("responseData").getString("translatedText");
-
-		System.out.println("Translated text: " + translatedText);
-		return translatedText;
-	}
-
-	private String getLanguage(Integer countryCode) {
-		String response = new String();
-		switch (countryCode) {
-		case 55:
-			response = "pt";
-			break;
-		case 34:
-			response = "es";
-			break;
-		case 44:
-			response = "en";
-			break;
-		case 33:
-			response = "fr";
-			break;
-		}
-		return response;
 	}
 
 	private boolean checkIfSendCanSendToRoom(SocketIOClient senderClient, String room) {

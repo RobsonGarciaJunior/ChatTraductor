@@ -38,7 +38,7 @@ public class Message {
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private User receiver;
 
-	@Column(name = "sender_id", insertable = false, updatable = false)
+	@Column(name = "receiver_id", insertable = false, updatable = false)
 	private Integer receiverId;
 
 	public Message () {}
