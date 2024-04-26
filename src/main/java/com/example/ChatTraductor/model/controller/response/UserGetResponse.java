@@ -1,6 +1,7 @@
 package com.example.ChatTraductor.model.controller.response;
 
 public class UserGetResponse {
+	private String email;
 	private Integer id;
 	private String name;
 	private String surname;
@@ -14,6 +15,23 @@ public class UserGetResponse {
 		this.phoneNumber1 = phoneNumber1;
 	}
 	
+	public UserGetResponse(String email, Integer id, String name, String surname, Long phoneNumber1) {
+		super();
+		this.email = email;
+		this.id = id;
+		this.name = name;
+		this.surname = surname;
+		this.phoneNumber1 = phoneNumber1;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
 	public Integer getId() {
 		return id;
 	}

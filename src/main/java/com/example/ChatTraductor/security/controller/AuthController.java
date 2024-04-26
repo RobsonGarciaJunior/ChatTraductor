@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.ChatTraductor.model.controller.response.UserGetResponse;
 import com.example.ChatTraductor.security.configuration.JwtTokenUtil;
 import com.example.ChatTraductor.security.model.AuthRequest;
 import com.example.ChatTraductor.security.model.AuthResponse;
@@ -51,7 +52,15 @@ public class AuthController {
 			// por lo que lo convertimos a su modelo real de BD para tener todos sus campos
 			User user = (User) authentication.getPrincipal();
 			String accessToken = jwtUtil.generateAccessToken(user);
-			AuthResponse response = new AuthResponse(user.getEmail(), accessToken);
+			UserGetResponse userGetResponse = convertFromUserDAOToGetResponse(user);
+//			AuthResponse response = new AuthResponse(user.getEmail(), accessToken);
+			AuthResponse response = new AuthResponse(
+					userGetResponse.getEmail(),
+					userGetResponse.getId(),
+					userGetResponse.getName(),
+					userGetResponse.getSurname(),
+					userGetResponse.getPhoneNumber1(),
+					accessToken);
 			
 			return ResponseEntity.ok().body(response);
 			
@@ -80,5 +89,16 @@ public class AuthController {
 		return ResponseEntity.ok().body(userDetails);
 	}
 	
-	
+	private UserGetResponse convertFromUserDAOToGetResponse(User user) {
+		
+		Long phoneNumberLong = Long.parseLong(user.getPhoneNumber1());
+		UserGetResponse response = new UserGetResponse(
+				user.getEmail(),
+				user.getId(),
+				user.getName(),
+				user.getSurname(),
+				phoneNumberLong);
+
+		return response;
+	}
 }
