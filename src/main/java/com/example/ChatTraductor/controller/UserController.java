@@ -40,6 +40,7 @@ public class UserController {
 		
 		Long phoneNumberLong = Long.parseLong(userDTO.getPhoneNumber1());
 		UserGetResponse response = new UserGetResponse(
+				userDTO.getEmail(),
 				userDTO.getId(),
 				userDTO.getName(),
 				userDTO.getSurname(),
