@@ -10,9 +10,12 @@ public interface IMessageService {
 
 	List<MessageDTO> findAll(Integer userId);
 
+	List<MessageDTO> findMessagesFromChatters(Integer chatter1Id, Integer chatter2Id);
+
 	MessageDTO createMessage(MessageDTO messageDTO);
 
 	String translateMessage(String text, Integer senderId, Integer receiverId);
-	
-	//MessageDTO updateMessage(MessageDTO messageDTO) throws MessageNotFoundException, IOException;
+
+	// MessageDTO updateMessage(MessageDTO messageDTO) throws
+	// MessageNotFoundException, IOException;
 }
