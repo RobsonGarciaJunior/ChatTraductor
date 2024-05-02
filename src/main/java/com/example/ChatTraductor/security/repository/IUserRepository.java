@@ -24,7 +24,7 @@ public interface IUserRepository extends CrudRepository<User, Integer>{
 	@Query("SELECT count(u) FROM User u  WHERE u.email = :email")
 	Integer findUserByEmail(@Param("email") String email);
 	
-	@Query("SELECT u FROM User u WHERE u.id > :givenId")
+	@Query("SELECT u FROM User u WHERE u.id != :givenId")
 	Iterable<User> findAllUsersCreatedAfterId(@Param("givenId") Integer givenId);
 
 	

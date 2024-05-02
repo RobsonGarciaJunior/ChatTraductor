@@ -5,6 +5,7 @@ import com.example.ChatTraductor.enums.MessageType;
 public class MessageFromServer {
 	
 	private MessageType messageType;
+	private Integer id;
 	private String message;
 	private String senderName;
 	private Integer senderId;
@@ -26,9 +27,10 @@ public class MessageFromServer {
 		this.receiverId = receiverId;
 	}
 
-	public MessageFromServer(MessageType messageType, String message, String senderName, Integer senderId) {
+	public MessageFromServer(MessageType messageType, Integer id, String message, String senderName, Integer senderId) {
 		super();
 		this.messageType = messageType;
+		this.id = id;
 		this.message = message;
 		this.senderName = senderName;
 		this.senderId = senderId;
@@ -42,6 +44,13 @@ public class MessageFromServer {
 		this.messageType = messageType;
 	}
 
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	public String getMessage() {
 		return message;

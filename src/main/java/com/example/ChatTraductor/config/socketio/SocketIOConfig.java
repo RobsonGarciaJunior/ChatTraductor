@@ -1,12 +1,7 @@
 package com.example.ChatTraductor.config.socketio;
 
-import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.Collection;
 
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,9 +20,6 @@ import com.example.ChatTraductor.model.socket.MessageFromServer;
 import com.example.ChatTraductor.security.configuration.JwtTokenUtil;
 import com.example.ChatTraductor.security.service.IUserService;
 import com.example.ChatTraductor.service.IMessageService;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.annotation.PreDestroy;
@@ -66,7 +58,8 @@ public class SocketIOConfig {
 		config.setHostname(host);
 		config.setPort(socketServerPort);
 
-		// vamos a permitir a una web que no este en el mismo host y port conectarse. Si no da error de Cross Domain
+		// vamos a permitir a una web que no este en el mismo host y port conectarse. Si
+		// no da error de Cross Domain
 		config.setAllowHeaders("Authorization");
 		config.setOrigin("http://localhost:" + webServerPort);
 		config.setMaxFramePayloadLength(1024 * 1024); // 1 MB in bytes
@@ -80,8 +73,7 @@ public class SocketIOConfig {
 		return server;
 	}
 
-
-	//SINO QUITO EL STATIC ME DICE QUE JWT ES NULO
+	// SINO QUITO EL STATIC ME DICE QUE JWT ES NULO
 	private class MyConnectListener implements ConnectListener {
 
 		private SocketIOServer server;
@@ -93,20 +85,21 @@ public class SocketIOConfig {
 		@Override
 		public void onConnect(SocketIOClient client) {
 
-			if (!isAllowedToConnect(client)){
+			if (!isAllowedToConnect(client)) {
 				// FUERA
 				System.out.println("Nuevo cliente no permitida la conexion: " + client.getSessionId());
 				client.disconnect();
 			} else {
 				HttpHeaders headers = client.getHandshakeData().getHttpHeaders();
 				loadClientData(headers, client);
-				System.out.printf("Nuevo cliente conectado: %s . Clientes conectados ahora mismo: %d \n", client.getSessionId(), this.server.getAllClients().size());
+				System.out.printf("Nuevo cliente conectado: %s . Clientes conectados ahora mismo: %d \n",
+						client.getSessionId(), this.server.getAllClients().size());
 				// aqui incluso se podria notificar a todos o a salas de que se ha conectado...
 				// server.getBroadcastOperations().sendEvent("chat message", messageFromServer);
 			}
 		}
 
-		//COMPROBAMOS SI EL CLIENTE CUMPLE LOS REQUISITOS PARA CONECTARSE
+		// COMPROBAMOS SI EL CLIENTE CUMPLE LOS REQUISITOS PARA CONECTARSE
 		private boolean isAllowedToConnect(SocketIOClient client) {
 
 			HttpHeaders headers = client.getHandshakeData().getHttpHeaders();
@@ -136,7 +129,6 @@ public class SocketIOConfig {
 				client.set(CLIENT_USER_ID_PARAM, senderId);
 				client.set(CLIENT_USER_NAME_PARAM, senderName);
 
-
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -146,15 +138,17 @@ public class SocketIOConfig {
 	private class MyDisconnectListener implements DisconnectListener {
 		@Override
 		public void onDisconnect(SocketIOClient client) {
-			client.getNamespace().getAllClients().stream().forEach(data-> {
-				System.out.println("user disconnected "+ data.getSessionId().toString());
-				//FIXME
+			client.getNamespace().getAllClients().stream().forEach(data -> {
+				System.out.println("user disconnected " + data.getSessionId().toString());
+				// FIXME
 				// notificateDisconnectToUsers(client);
 			});
-			System.out.printf("Cliente restantes: %s . Clientes conectados ahora mismo: %d \n", client.getSessionId(), server.getAllClients().size());
+			System.out.printf("Cliente restantes: %s . Clientes conectados ahora mismo: %d \n", client.getSessionId(),
+					server.getAllClients().size());
 		}
 
-		// podemos notificar a los demas usuarios que ha salido. Ojo por que el broadcast envia a todos
+		// podemos notificar a los demas usuarios que ha salido. Ojo por que el
+		// broadcast envia a todos
 		private void notificateDisconnectToUsers(SocketIOClient client) {
 
 			String message = "el usuario se ha desconectado salido";
@@ -162,13 +156,10 @@ public class SocketIOConfig {
 			Integer senderId = Integer.valueOf(senderIdS);
 			String senderName = client.get(CLIENT_USER_NAME_PARAM);
 
-			MessageFromServer messageFromServer = new MessageFromServer(
-					MessageType.SERVER, 
-					message, 
-					senderName, 
-					senderId
-					);
-			client.getNamespace().getBroadcastOperations().sendEvent(SocketEvents.ON_SEND_MESSAGE.value, messageFromServer);
+			MessageFromServer messageFromServer = new MessageFromServer(MessageType.SERVER, null, message, senderName,
+					senderId);
+			client.getNamespace().getBroadcastOperations().sendEvent(SocketEvents.ON_SEND_MESSAGE.value,
+					messageFromServer);
 		}
 	}
 
@@ -179,27 +170,20 @@ public class SocketIOConfig {
 			Integer senderId = Integer.valueOf(senderIdS);
 			String senderName = senderClient.get(CLIENT_USER_NAME_PARAM);
 
-			System.out.printf("Mensaje recibido de (%d) %s. El mensaje es el siguiente: %s \n", senderId, senderName, data.toString());
+			System.out.printf("Mensaje recibido de (%d) %s. El mensaje es el siguiente: %s \n", senderId, senderName,
+					data.toString());
 
 			if (data.getMessage() == null || data.getMessage().trim().isEmpty()) {
-				MessageFromServer errorMessage  = new MessageFromServer(
-						MessageType.SERVER, 
-						"No puedes enviar un mensaje vacio", 
-						"Server", 
-						0
-						);
+				MessageFromServer errorMessage = new MessageFromServer(MessageType.SERVER, null,
+						"No puedes enviar un mensaje vacio", "Server", 0);
 
 				System.out.printf("Mensaje reenviado al usuario" + errorMessage);
 				senderClient.sendEvent(SocketEvents.ON_MESSAGE_NOT_SENT.value, errorMessage);
 				return;
 			}
 
-			MessageFromServer message = new MessageFromServer(
-					MessageType.CLIENT,
-					data.getMessage(), 
-					senderName, 
-					senderId
-					);
+			MessageFromServer message = new MessageFromServer(MessageType.CLIENT, null, data.getMessage(), senderName,
+					senderId);
 
 			MessageDTO createdMessage;
 
@@ -211,19 +195,25 @@ public class SocketIOConfig {
 			System.out.printf("Mensaje enviado a la room" + message);
 			System.out.println(message.getMessage());
 			SocketIOClient receiverClient = findClientByUserId(data.getReceiverId());
-			
-			String translatedMessage = messageService.translateMessage(createdMessage.getText(), senderId, data.getReceiverId());
-			createdMessage.setText(translatedMessage);
 
-			if (receiverClient != null) {					
-				receiverClient.sendEvent(SocketEvents.ON_SEND_MESSAGE.value, createdMessage);
+			String translatedMessage = messageService.translateMessage(createdMessage.getText(), senderId,
+					data.getReceiverId());
+			createdMessage.setText(translatedMessage);
+			if (createdMessage != null) {
+				message.setId(createdMessage.getId());
+			}
+			if (receiverClient != null) {
+				receiverClient.sendEvent(SocketEvents.ON_SEND_MESSAGE.value, message);
 			}
 
-			// TODO esto es para mandar a todos los clientes. No para mandar a los de una Room
-			// senderClient.getNamespace().getBroadcastOperations().sendEvent("chat message", message);
+			// TODO esto es para mandar a todos los clientes. No para mandar a los de una
+			// Room
+			// senderClient.getNamespace().getBroadcastOperations().sendEvent("chat
+			// message", message);
 
 			// esto puede que veamos mas adelante
-			// acknowledge.sendAckData("El mensaje se envio al destinatario satisfactoriamente");
+			// acknowledge.sendAckData("El mensaje se envio al destinatario
+			// satisfactoriamente");
 		};
 	}
 
@@ -246,7 +236,7 @@ public class SocketIOConfig {
 		SocketIOClient response = null;
 
 		Collection<SocketIOClient> clients = server.getAllClients();
-		for (SocketIOClient client: clients) {
+		for (SocketIOClient client : clients) {
 			Integer currentClientId = Integer.valueOf(client.get(SocketIOConfig.CLIENT_USER_ID_PARAM));
 			if (currentClientId == idUser) {
 				response = client;
