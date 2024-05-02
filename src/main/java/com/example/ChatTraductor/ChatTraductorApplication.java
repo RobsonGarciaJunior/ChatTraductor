@@ -37,9 +37,9 @@ public class ChatTraductorApplication {
 		List<User> users = (List<User>) u;
 
 		if(users.size() == 0) {
-			for(int i = 0; i < 5 ; i++) {	
+			for(int i = 0; i < 10 ; i++) {	
 				PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
-				String[] region = {"ES", "GB"};
+				String[] region = {"ES", "GB", "PT"};
 				Random random = new Random();
 				int index = random.nextInt(region.length);
 				seedUsersTable(phoneNumberUtil, region[index]);
@@ -78,6 +78,9 @@ public class ChatTraductorApplication {
 			break;
 		case "GB":
 			response = "en";
+			break;
+		case "PT":
+			response = "pt";
 			break;
 		}
 		return response;

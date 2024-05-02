@@ -168,8 +168,8 @@ public class MessageService implements IMessageService {
 	private String getLanguage(Integer countryCode) {
 		String response = new String();
 		switch (countryCode) {
-		case 55:
-			response = "pt";
+		case 351:
+			response = "por";
 			break;
 		case 34:
 			response = "es";
