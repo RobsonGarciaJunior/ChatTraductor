@@ -177,9 +177,6 @@ public class MessageService implements IMessageService {
 		case 44:
 			response = "en";
 			break;
-		case 33:
-			response = "fr";
-			break;
 		}
 		return response;
 	}
